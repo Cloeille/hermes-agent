@@ -43,9 +43,12 @@ describe('WslgWindowControls', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Maximize window' }))
     fireEvent.click(screen.getByRole('button', { name: 'Close window' }))
 
-    expect(windowControls.minimize).toHaveBeenCalledOnce()
-    expect(windowControls.toggleMaximize).toHaveBeenCalledOnce()
-    expect(windowControls.close).toHaveBeenCalledOnce()
+    // Argument-free on purpose: contextBridge structured-clones arguments and a
+    // React SyntheticEvent is not cloneable, so passing the event would throw
+    // before the IPC send and the buttons would silently do nothing.
+    expect(windowControls.minimize).toHaveBeenCalledExactlyOnceWith()
+    expect(windowControls.toggleMaximize).toHaveBeenCalledExactlyOnceWith()
+    expect(windowControls.close).toHaveBeenCalledExactlyOnceWith()
   })
 
   it('exposes restore semantics while maximized', () => {

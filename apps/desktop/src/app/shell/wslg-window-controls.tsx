@@ -37,6 +37,11 @@ export function WslgWindowControls({ isFullscreen, isMaximized }: WslgWindowCont
     return null
   }
 
+  // Call the bridge with NO arguments: contextBridge structured-clones every
+  // argument into the preload world and a React SyntheticEvent (DOM nodes,
+  // nativeEvent, functions) is not cloneable, so `onClick={controls.minimize}`
+  // throws "An object could not be cloned" before ipcRenderer.send ever runs
+  // and the button silently does nothing.
   return (
     <div
       aria-label="Window controls"
@@ -48,7 +53,7 @@ export function WslgWindowControls({ isFullscreen, isMaximized }: WslgWindowCont
       <button
         aria-label="Minimize window"
         className={buttonClass}
-        onClick={controls.minimize}
+        onClick={() => controls.minimize()}
         onPointerDown={stopTitlebarDrag}
         type="button"
       >
@@ -57,7 +62,7 @@ export function WslgWindowControls({ isFullscreen, isMaximized }: WslgWindowCont
       <button
         aria-label={isMaximized ? 'Restore window' : 'Maximize window'}
         className={buttonClass}
-        onClick={controls.toggleMaximize}
+        onClick={() => controls.toggleMaximize()}
         onPointerDown={stopTitlebarDrag}
         type="button"
       >
@@ -69,7 +74,7 @@ export function WslgWindowControls({ isFullscreen, isMaximized }: WslgWindowCont
           buttonClass,
           'hover:bg-[#c42b1c] hover:text-white active:bg-[#b3271a] active:text-white dark:hover:bg-[#c42b1c]'
         )}
-        onClick={controls.close}
+        onClick={() => controls.close()}
         onPointerDown={stopTitlebarDrag}
         type="button"
       >
