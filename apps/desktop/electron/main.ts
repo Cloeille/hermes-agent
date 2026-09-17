@@ -447,7 +447,6 @@ import {
   bindGeometryPersistence,
   computeWindowOptions,
   debounce,
-  maximizedBoundsCorrection,
   sanitizeWindowState,
   MIN_HEIGHT as WINDOW_MIN_HEIGHT,
   MIN_WIDTH as WINDOW_MIN_WIDTH
@@ -6948,27 +6947,6 @@ function sendOpenUpdatesRequested() {
 // Push titlebar/fullscreen chrome state to a window's renderer. Defaults to the
 // primary, but any full chat window (primary or a secondary "instance" peer)
 // passes itself so its own fullscreen toggle drives its own traffic-light inset.
-// WSLg's RAIL compositor can settle a frameless window's native maximize offset
-// from the display work area (desktop strip top/left, content clipped
-// bottom/right — reported on WSLg 1.0.65). Snap it back. No-op when the window
-// already fills the work area, so healthy compositors are never fought and it
-// cannot loop on setBounds.
-function correctWslgMaximizeGap(win = mainWindow) {
-  if (!IS_WSL || !win || win.isDestroyed() || !win.isMaximized?.()) {
-    return
-  }
-
-  try {
-    const correction = maximizedBoundsCorrection(win.getBounds(), screen.getDisplayMatching(win.getBounds())?.workArea)
-
-    if (correction) {
-      win.setBounds(correction)
-    }
-  } catch (error) {
-    rememberLog(`[wslg] maximize gap correction failed: ${error?.message || error}`)
-  }
-}
-
 function sendWindowStateChanged(nextIsFullscreen?: boolean, target = mainWindow) {
   if (!target || target.isDestroyed()) {
     return
@@ -14847,7 +14825,6 @@ function createWindow() {
   // synchronously before the window is gone.
   bindGeometryPersistence(mainWindow, schedulePersistWindowState)
   mainWindow.on('maximize', () => {
-    correctWslgMaximizeGap(mainWindow)
     // Renderer-drawn WSLg controls swap the maximize/restore glyph off this.
     sendWindowStateChanged()
     schedulePersistWindowState()

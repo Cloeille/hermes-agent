@@ -147,21 +147,6 @@ const GEOMETRY_EVENTS = ['move', 'resize']
 
 // Bind `schedule` to every geometry event, on a BrowserWindow or any emitter
 // with `.on`. One call site per window so the platform reasoning above can't be
-// Under WSLg's RAIL compositor a frameless window's native maximize can settle
-// offset from the display work area. Return the work-area bounds to snap onto,
-// or null when the window already fills it so a healthy compositor is never
-// fought and setBounds cannot loop.
-function maximizedBoundsCorrection(bounds, workArea) {
-  if (!bounds || !workArea || !finite(workArea.x) || !finite(workArea.y) || !finite(workArea.width) || !finite(workArea.height)) {
-    return null
-  }
-
-  const fillsWorkArea =
-    bounds.x === workArea.x && bounds.y === workArea.y && bounds.width === workArea.width && bounds.height === workArea.height
-
-  return fillsWorkArea ? null : { x: workArea.x, y: workArea.y, width: workArea.width, height: workArea.height }
-}
-
 // half-applied to one window and not the other.
 function bindGeometryPersistence(win, schedule) {
   for (const event of GEOMETRY_EVENTS) {
@@ -176,7 +161,6 @@ export {
   DEFAULT_HEIGHT,
   DEFAULT_WIDTH,
   GEOMETRY_EVENTS,
-  maximizedBoundsCorrection,
   MIN_HEIGHT,
   MIN_VISIBLE,
   MIN_WIDTH,

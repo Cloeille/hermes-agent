@@ -15,7 +15,6 @@ import {
   debounce,
   DEFAULT_HEIGHT,
   DEFAULT_WIDTH,
-  maximizedBoundsCorrection,
   MIN_HEIGHT,
   MIN_WIDTH,
   onScreen,
@@ -118,25 +117,6 @@ test('computeWindowOptions keeps the MIN floor on a sub-minimum display', () => 
 test('computeWindowOptions does not clamp when displays are unknown', () => {
   const saved = sanitizeWindowState({ width: 2560, height: 1440 })
   assert.deepEqual(computeWindowOptions(saved, []), { width: 2560, height: 1440 })
-})
-
-// ─── maximizedBoundsCorrection ───────────────────────────────────────────────
-
-const WORK_AREA = { x: 0, y: 0, width: 1920, height: 1040 }
-
-test('maximizedBoundsCorrection is a no-op when the maximized window already fills the work area', () => {
-  // Healthy compositors (plain Linux, most WSLg versions) must never be fought.
-  assert.equal(maximizedBoundsCorrection({ ...WORK_AREA }, WORK_AREA), null)
-})
-
-test('maximizedBoundsCorrection snaps a WSLg maximize that settles offset or undersized', () => {
-  assert.deepEqual(maximizedBoundsCorrection({ x: 32, y: 32, width: 1920, height: 1040 }, WORK_AREA), WORK_AREA)
-  assert.deepEqual(maximizedBoundsCorrection({ x: 0, y: 0, width: 1888, height: 1008 }, WORK_AREA), WORK_AREA)
-})
-
-test('maximizedBoundsCorrection returns null on missing geometry', () => {
-  assert.equal(maximizedBoundsCorrection(null, WORK_AREA), null)
-  assert.equal(maximizedBoundsCorrection({ ...WORK_AREA }, { x: 0, y: 0 }), null)
 })
 
 // ─── debounce ──────────────────────────────────────────────────────────────
